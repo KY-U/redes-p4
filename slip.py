@@ -43,11 +43,17 @@ class Enlace:
     def __init__(self, linha_serial):
         self.linha_serial = linha_serial
         self.linha_serial.registrar_recebedor(self.__raw_recv)
+        self.residuos = b''
 
     def registrar_recebedor(self, callback):
         self.callback = callback
 
     def enviar(self, datagrama):
+        # TODO: Preencha aqui com o código para enviar o datagrama pela linha
+        # serial, fazendo corretamente a delimitação de quadros e o escape de
+        # sequências especiais, de acordo com o protocolo CamadaEnlace (RFC 1055).
+        pass
+
         #bytes de escape para 0xc0 e 0xdb
         datagrama_original = datagrama
         datagrama = b''
@@ -58,14 +64,10 @@ class Enlace:
                 datagrama += b'\xdb\xdd'
             else:
                 datagrama += bytes([byte])
-                
+
         #byte especial para saber onde o quadro começa e termina
         datagrama = b'\xc0' + datagrama + b'\xc0'
         self.linha_serial.enviar(datagrama)
-        # TODO: Preencha aqui com o código para enviar o datagrama pela linha
-        # serial, fazendo corretamente a delimitação de quadros e o escape de
-        # sequências especiais, de acordo com o protocolo CamadaEnlace (RFC 1055).
-        pass
 
     def __raw_recv(self, dados):
         # TODO: Preencha aqui com o código para receber dados da linha serial.
@@ -76,3 +78,19 @@ class Enlace:
         # apenas pedaços de um quadro, ou um pedaço de quadro seguido de um
         # pedaço de outro, ou vários quadros de uma vez só.
         pass
+
+        #juntando os dados residuais
+        dados = self.residuos + dados   
+        self.residuos = b''
+        #separando os quadros
+        datagramas = dados.split(b'\xc0')
+        if dados[-1] != b'\xc0':
+            self.residuos = datagramas[-1]
+            datagramas = datagramas[:-1]
+        
+        #sem separar os bytes de escape
+        for  datagrama in datagramas:
+            #datagrama = datagrama.replace(b'\xdb\xdc', b'\xc0')
+            #datagrama = datagrama.replace(b'\xdb\xdd', b'\xdb')
+            if datagrama != b'':
+                self.callback(datagrama)
