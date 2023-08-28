@@ -88,9 +88,9 @@ class Enlace:
             self.residuos = datagramas[-1]
             datagramas = datagramas[:-1]
         
-        #sem separar os bytes de escape
+        #separando os bytes de escape
         for  datagrama in datagramas:
-            #datagrama = datagrama.replace(b'\xdb\xdc', b'\xc0')
-            #datagrama = datagrama.replace(b'\xdb\xdd', b'\xdb')
+            datagrama = datagrama.replace(b'\xdb\xdc', b'\xc0')
+            datagrama = datagrama.replace(b'\xdb\xdd', b'\xdb')
             if datagrama != b'':
                 self.callback(datagrama)
