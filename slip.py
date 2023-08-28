@@ -48,6 +48,18 @@ class Enlace:
         self.callback = callback
 
     def enviar(self, datagrama):
+        #bytes de escape para 0xc0 e 0xdb
+        datagrama_original = datagrama
+        datagrama = b''
+        for byte in datagrama_original:
+            if byte == 0xc0:
+                datagrama += b'\xdb\xdc'
+            elif byte == 0xdb:
+                datagrama += b'\xdb\xdd'
+            else:
+                datagrama += bytes([byte])
+                
+        #byte especial para saber onde o quadro começa e termina
         datagrama = b'\xc0' + datagrama + b'\xc0'
         self.linha_serial.enviar(datagrama)
         # TODO: Preencha aqui com o código para enviar o datagrama pela linha
