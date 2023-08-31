@@ -93,4 +93,13 @@ class Enlace:
             datagrama = datagrama.replace(b'\xdb\xdc', b'\xc0')
             datagrama = datagrama.replace(b'\xdb\xdd', b'\xdb')
             if datagrama != b'':
-                self.callback(datagrama)
+                try:
+                    self.callback(datagrama)
+                except:
+                    # ignora a exceção, mas mostra na tela
+                    import traceback
+                    traceback.print_exc()
+                finally:
+                    # faça aqui a limpeza necessária para garantir que não vão sobrar
+                    # pedaços do datagrama em nenhum buffer mantido por você
+                    dados = b''
